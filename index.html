@@ -33,9 +33,14 @@ handleDrop = (e) => {
     client.init(uid, {
       success: (api) => {
         viewer.style.display = 'block'
-        const canvas = viewer.contentWindow.document.getElementsByTagName('canvas')
-        if(canvas.length == 1){
-          setDragListener(canvas[0])
+        try {
+          const canvas = viewer.contentWindow.document.getElementsByTagName('canvas')
+          if(canvas.length == 1){
+            setDragListener(canvas[0])
+          }
+        } catch(e) {
+          // It could be a cross-domain restriction error...
+          console.error(e)
         }
         api.start()
       },
