@@ -1,0 +1,97 @@
+<html>
+<head>
+<title>DnDTest</title>
+<script type="text/javascript" src="https://static.sketchfab.com/api/sketchfab-viewer-1.0.0.js"></script>
+<script>
+const openSubWindow = () => {
+  const subwindow = window.open("./window.html", "subwindow")
+}
+
+let handleDrop = null
+
+const setDragListener = (elem) => {
+  elem.addEventListener('dragover', (e) => {
+    e.preventDefault()
+  })
+  elem.addEventListener('drop', handleDrop)
+}
+
+const version = '1.0.0'
+handleDrop = (e) => {
+  e.preventDefault()
+  const uid = e.dataTransfer.getData('viewer-uid')
+  if(typeof uid !== 'undefined'){
+    const container = document.getElementById('container')
+    container.style.background = 'black'
+    const message = document.getElementById('message')
+    message.style.display = 'none'
+
+    const viewer = document.getElementById('viewer')
+    viewer.style.display = 'none'
+
+    const client = new Sketchfab(version, viewer)
+    client.init(uid, {
+      success: (api) => {
+        viewer.style.display = 'block'
+        const canvas = viewer.contentWindow.document.getElementsByTagName('canvas')
+        if(canvas.length == 1){
+          setDragListener(canvas[0])
+        }
+        api.start()
+      },
+      error: () => {
+        alert('error')
+      }
+    })
+  }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('container')
+  setDragListener(container)
+})
+</script>
+<style>
+div { 
+  width: 400px;
+  height: 200px;
+  margin: 10px;
+  color: black;
+  background: white;
+  border: 1px solid black;
+  box-shadow: 2px 2px 4px gray;
+}
+
+#viewer {
+  width: 400px; 
+  height: 200px; 
+  margin: 0;
+  padding: 0;
+  color: black; 
+  background: white;
+  border: none;
+  display: none;
+}
+
+#message {
+  position: relative;
+  margin: auto;
+  top: 40%;
+  left: 0;
+  text-align: center;
+  vertical-align: middle;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+</style>
+</head>
+<body>
+<button onclick="openSubWindow()">Show Thumbnails</button><br />
+<div id="container" draggable="true">
+  <div id="message">Drop a thumbnail here!</div>
+  <iframe src="" id="viewer"></iframe>
+</div>
+</body>
+</html>

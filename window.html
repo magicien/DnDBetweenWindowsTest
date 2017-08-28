@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>window</title>
+<script>
+const setDragListener = (elem) => {
+  elem.draggable = true
+  elem.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('viewer-uid', elem.uid)
+  })
+}
+
+const smallestImage = (images) => {
+  return images.reduce((a, b) => a.size < b.size ? a: b)
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('thumbnails')
+  const searchUrl = 'https://api.sketchfab.com/v3/search?type=models&downloadable=true&animated=true&staffpicked=true&sort_by=-publishedAt'
+  const request = new XMLHttpRequest()
+  request.open('GET', searchUrl)
+  request.responseType = 'json'
+  request.onload = (e) => {
+    const res = request.response
+    if(res){
+      for(let model of res.results){
+        const images = model.thumbnails.images
+        if(images.length > 0){
+          const img = document.createElement('img')
+          img.src = smallestImage(images).url
+          img.uid = model.uid
+          setDragListener(img)
+          container.appendChild(img)
+        }
+      }
+    }
+  }
+  request.send(null)
+})
+</script>
+<style>
+img {
+  float: left;
+}
+</style>
+</head>
+<body>
+<h2>Drag & Drop a thumnail to the box</h2>
+<div id="thumbnails"></div>
+</body>
+</html>
